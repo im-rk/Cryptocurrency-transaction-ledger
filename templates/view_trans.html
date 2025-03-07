@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIEW TRANSACTION</title>
+</head>
+<body>
+    <h2>View Transactions</h2>
+
+    <h3>Last Few Transactions</h3>
+    <ul>
+        {% for transaction in my_data %}
+            <li>ID: {{ transaction._id }}</li>
+            <li>Sender: {{ transaction.sender_address }}</li>
+            <li>Receiver: {{ transaction.receiver_address }}</li>
+            <li>Amount: {{ transaction.amount }}</li>
+            <li>Time: {{ transaction.time }}</li>
+            <li>Hash: {{ transaction.hash }}</li>
+            <li>Previous Hash: {{ transaction.pre_hash }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

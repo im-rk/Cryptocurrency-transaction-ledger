@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Transcation</title>
+</head>
+<body>
+    <h2>Make Transcation</h2>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {%for message in messages %}
+        <p>{{message}}</p>
+        {%endfor%}   
+        {% endif %}
+    {% endwith %}
+
+    <!-- Transcation Form -->
+    <form method="POST" action="{{ url_for('make_trans') }}">
+        <label for="sender">Sender:</label>
+        <input type="text" id="sender" name="sender" required>
+
+        <label for="receiver">Receiver:</label>
+        <input type="text" id="receiver" name="receiver" required>
+
+        <label for="amount">Amount</label>
+        <input type="text" id="amount" name="amount" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <!--<p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>-->
+</body>
+</html>
+
+

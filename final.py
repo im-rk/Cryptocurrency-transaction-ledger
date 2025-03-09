@@ -56,6 +56,27 @@ class TransactionLedger(BlockchainComponent):
     def __init__(self):
         self.head = None
         self.tail = None
+        self.load_previous_transactions()  
+
+    def load_previous_transactions(self):
+        transactions = list(collection.find({})) 
+
+        previous_node = None
+        for txn in transactions:
+            transaction = Transaction(txn["sender_address"], txn["receiver_address"], txn["amount"])
+            node = Node(transaction, txn["previous_hash"])
+            node.hash = txn["hash"]  
+
+            if self.head is None:
+                self.head = node  
+
+            if previous_node:
+                previous_node.next = node 
+
+            previous_node = node  
+
+        self.tail = previous_node  
+
 
     def get_wallet_address(self, username):
         return generate_wallet_address(username)

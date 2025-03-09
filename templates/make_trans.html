@@ -20,7 +20,7 @@
     <!-- Transcation Form -->
     <form method="POST" action="{{ url_for('make_trans') }}">
         <label for="sender">Sender:</label>
-        <input type="text" id="sender" name="sender" required>
+        <input type="text" id="sender" name="sender" value="{{sender}}" readonly>
 
         <label for="receiver">Receiver:</label>
         <input type="text" id="receiver" name="receiver" required>
@@ -28,7 +28,7 @@
         <label for="amount">Amount</label>
         <input type="text" id="amount" name="amount" required>
 
-        <button type="submit">Register</button>
+        <button type="submit">Make Payment</button>
     </form>
 
     <!--<p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>-->

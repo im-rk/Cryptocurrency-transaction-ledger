@@ -3,7 +3,7 @@ import hashlib
 import pymongo
 import ecdsa
 import base58
-
+from datetime import datetime
 # MongoDB Connection
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["TransactionDB"]
@@ -11,7 +11,6 @@ users_collection = db["Users"]
 collection = db["Transactions"]  
 
 def generate_wallet_address(username):
-    """Generate a unique wallet address for a user if not already created."""
     existing_user = users_collection.find_one({"name": username})
     if existing_user:
         return existing_user["wallet_address"]
@@ -33,23 +32,27 @@ class Transaction:
         self.sender_address = sender_address
         self.receiver_address = receiver_address
         self.amount = amount
-        self.timestamp = time.time()
+        self.timestamp = datetime.now()
 
     def __str__(self):
         return f"Sender: {self.sender_address}, Receiver: {self.receiver_address}, Amount: {self.amount}, Timestamp: {self.timestamp}"
+class BlockchainComponent:
+    def calculate_hash(self, sender, receiver, amount, timestamp, previous_hash):
+        data = f"{sender}{receiver}{amount}{timestamp}{previous_hash}"
+        return hashlib.sha256(data.encode()).hexdigest()
 
-class Node:
+class Node(BlockchainComponent):
     def __init__(self, transaction, previous_hash=""):
         self.transaction = transaction
         self.previous_hash = previous_hash
-        self.hash = self.calculate_hash()
+        self.hash = self.calculate_hash(transaction.sender_address,transaction.receiver_address,transaction.amount,transaction.timestamp,previous_hash)
         self.next = None
 
-    def calculate_hash(self):
-        data = f"{self.transaction.sender_address}{self.transaction.receiver_address}{self.transaction.amount}{self.transaction.timestamp}{self.previous_hash}"
-        return hashlib.sha256(data.encode()).hexdigest()
+    #def calculate_hash(self):
+        #data = f"{self.transaction.sender_address}{self.transaction.receiver_address}{self.transaction.amount}{self.transaction.timestamp}{self.previous_hash}"
+        #return hashlib.sha256(data.encode()).hexdigest()
 
-class TransactionLedger:
+class TransactionLedger(BlockchainComponent):
     def __init__(self):
         self.head = None
         self.tail = None
@@ -82,11 +85,24 @@ class TransactionLedger:
     def verify_chain(self):
         current = self.head
         while current and current.next:
-            if current.next.previous_hash != current.hash:
+            recalculated_hash = self.calculate_hash(
+                current.transaction.sender_address,
+                current.transaction.receiver_address,
+                current.transaction.amount,
+                current.transaction.timestamp,
+                current.previous_hash
+            )
+            if current.hash != recalculated_hash:  
+                print(f"⚠️ Tampering detected in transaction: {current.transaction}")
                 return False
+
+            if current.hash != current.next.previous_hash:
+                return False  # Chain is broken
             current = current.next
+
         return True
 
+    
     def display_ledger(self):
         transactions = collection.find()
         if collection.count_documents({}) == 0:
@@ -101,25 +117,40 @@ class TransactionLedger:
             print(f"Timestamp: {time.ctime(txn['timestamp'])}")
             print(f"Previous Hash: {txn['previous_hash']}\n")
             print("-" * 40)
-
 obj = TransactionLedger()
-# while True:
-#     print("\nOptions: 1. Add Transaction  2. Display Ledger  3. Verify Ledger  4. Exit")
-#     choice = input("Enter your choice: ")
-#     if choice == "1":
-#         sender = input("Sender name: ")
-#         receiver = input("Receiver name: ")
-#         try:
-#             amount = float(input("Amount: "))
-#             obj.add_transaction(sender, receiver, amount)
-#         except ValueError:
-#             print("Invalid amount! Please enter a valid number.")
-#     elif choice == "2":
-#         obj.display_ledger()
-#     elif choice == "3":
-#         print("Ledger Integrity Verified:", obj.verify_chain())
-#     elif choice == "4":
-#         print("THANK YOU")
-#         break
-#     else:
-#         print("Invalid choice! Please enter a valid option.")
+
+if __name__=="__main__":
+
+    while True:
+        print("\nOptions: 1. Add Transaction  2. Display Ledger  3. Verify Ledger  4. Exit  5. Tamper Data")
+        choice = input("Enter your choice: ")
+        
+        if choice == "1":
+            sender = input("Sender name: ")
+            receiver = input("Receiver name: ")
+            try:
+                amount = float(input("Amount: "))
+                obj.add_transaction(sender, receiver, amount)
+            except ValueError:
+                print("Invalid amount! Please enter a valid number.")
+        
+        elif choice == "2":
+            obj.display_ledger()
+        
+        elif choice == "3":
+            print("Ledger Integrity Verified:", obj.verify_chain())
+        
+        elif choice == "4":
+            print("THANK YOU")
+            break
+        
+        elif choice == "5":  # ✅ Tamper Data Option
+            if obj.head:
+                print("\n⚠️ Tampering first transaction data...")
+                obj.head.transaction.amount = 9999999  # Modify the amount
+                print("Transaction tampered successfully!")
+            else:
+                print("No transactions found to tamper.")
+        
+        else:
+            print("Invalid choice! Please enter a valid option.")

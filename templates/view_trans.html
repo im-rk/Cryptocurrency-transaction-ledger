@@ -9,16 +9,23 @@
     <h2>View Transactions</h2>
 
     <h3>Last Few Transactions</h3>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {%for message in messages %}
+        <p>{{message}}</p>
+        {%endfor%}   
+        {% endif %}
+    {% endwith %}
     <ul>
         {% for transaction in my_data %}
             <li>ID: {{ transaction._id }}</li>
             <li>Sender: {{ transaction.sender_address }}</li>
             <li>Receiver: {{ transaction.receiver_address }}</li>
             <li>Amount: {{ transaction.amount }}</li>
-            <li>Time: {{ transaction.time }}</li>
-            <li>Hash: {{ transaction.hash }}</li>
-            <li>Previous Hash: {{ transaction.pre_hash }}</li>
+            <li>Time: {{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') if transaction.timestamp else 'N/A' }}</li>
+            <hr>
         {% endfor %}
     </ul>
+
 </body>
 </html>

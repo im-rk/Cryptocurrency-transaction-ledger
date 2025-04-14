@@ -4,28 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VIEW TRANSACTION</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            width: 450px;
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        /* Flash Message Bar */
+        .message-bar {
+            background-color: #ffcc00;
+            color: #333;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        ul {
+            list-style: none;
+            text-align: left;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        li {
+            font-size: 16px;
+            margin: 8px 0;
+            padding: 8px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 12px 0;
+        }
+    </style>
 </head>
 <body>
-    <h2>View Transactions</h2>
+    <div class="container">
+        <h2>View Transactions</h2>
 
-    <h3>Last Few Transactions</h3>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {%for message in messages %}
-        <p>{{message}}</p>
-        {%endfor%}   
-        {% endif %}
-    {% endwith %}
-    <ul>
-        {% for transaction in my_data %}
-            <li>ID: {{ transaction._id }}</li>
-            <li>Sender: {{ transaction.sender_address }}</li>
-            <li>Receiver: {{ transaction.receiver_address }}</li>
-            <li>Amount: {{ transaction.amount }}</li>
-            <li>Time: {{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') if transaction.timestamp else 'N/A' }}</li>
-            <hr>
-        {% endfor %}
-    </ul>
+        <h3>Last Few Transactions</h3>
 
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="message-bar">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>  
+            {% endif %}
+        {% endwith %}
+
+        <ul>
+            {% for transaction in my_data %}
+                <li><strong>ID:</strong> {{ transaction._id }}</li>
+                <li><strong>Sender:</strong> {{ transaction.sender_address }}</li>
+                <li><strong>Receiver:</strong> {{ transaction.receiver_address }}</li>
+                <li><strong>Amount:</strong> {{ transaction.amount }}</li>
+                <li><strong>Time:</strong> {{ transaction.timestamp }}</li>
+                <hr>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>

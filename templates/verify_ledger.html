@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Ledger</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #EC6F66, #EFAAC4, #BE46C9); /* Updated to match the image */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2); /* Semi-transparent white for a soft glass effect */
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+            width: 500px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(10px); /* Glassmorphism effect */
+        }
+
+        h2 {
+            text-align: center;
+            color: white;
+        }
+
+        .message {
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .warning { color: orange; }
+        .valid { color: green; }
+        .error { color: red; }
+
+        a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        a:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Ledger Verification</h2>
+
+        <div class="message">
+            {% if verification_result.message == "Ledger is empty." %}
+                <p class="warning">⚠️ Ledger is empty.</p>
+            {% elif verification_result.valid %}
+                <p class="valid">✅ Ledger is valid and intact.</p>
+            {% else %}
+                <p class="error">⚠️ Ledger verification failed!</p>
+                <p class="error">Possible tampering detected.</p>
+            {% endif %}
+        </div>
+
+        <p><strong>Message:</strong></p>
+        <p>{{ verification_result.message }}</p>
+
+        <a href="{{ url_for('menu') }}">⬅️ Back to Menu</a>
+    </div>
+</body>
+</html>

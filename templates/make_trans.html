@@ -3,36 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make Transcation</title>
+    <title>Make Transaction</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+            width: 380px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .flash-message {
+            background: #FFF4E5;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #d9534f;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+        }
+
+        .form-group {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            outline: none;
+            background: #f9f9f9;
+            transition: all 0.3s ease-in-out;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+            background: #fff;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 14px;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .card {
+            width: 100%;
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .success-message {
+            background: #e6ffed;
+            color: #28a745;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h2>Make Transcation</h2>
+    <div class="container">
+        <h2>Make a Secure Transaction</h2>
 
-    <!-- Flash messages -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {%for message in messages %}
-        <p>{{message}}</p>
-        {%endfor%}   
-        {% endif %}
-    {% endwith %}
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="flash-message">{{ message }}</p>
+                {% endfor %}
+            {% else %}
+                {% if request.method == 'POST' %}
+                    <p class="success-message">Transaction is successful</p>
+                {% endif %}
+            {% endif %}
+        {% endwith %}
 
-    <!-- Transcation Form -->
-    <form method="POST" action="{{ url_for('make_trans') }}">
-        <label for="sender">Sender:</label>
-        <input type="text" id="sender" name="sender" value="{{sender}}" readonly>
+        <!-- Transaction Form -->
+        <form id="transactionForm" method="POST" action="{{ url_for('make_trans') }}">
+            <div class="card">
+                <strong>Sender:</strong> <span>{{ sender }}</span>
+            </div>
 
-        <label for="receiver">Receiver:</label>
-        <input type="text" id="receiver" name="receiver" required>
+            <div class="form-group">
+                <label for="receiver">Receiver:</label>
+                <input type="text" id="receiver" name="receiver" placeholder="Enter receiver's name" required>
+            </div>
 
-        <label for="amount">Amount</label>
-        <input type="text" id="amount" name="amount" required>
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="text" id="amount" name="amount" placeholder="Enter amount" required>
+            </div>
 
-        <button type="submit">Make Payment</button>
-    </form>
-
-    <!--<p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>-->
+            <div class="btn-container">
+                <button type="submit" class="btn">Confirm Payment</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
-
-

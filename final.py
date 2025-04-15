@@ -155,12 +155,11 @@ class TransactionLedger(BlockchainComponent):
         db["merkle_roots"].insert_one({"root": merkle_tree.get_root(), "timestamp": transaction.timestamp})
 
     def search_transactions(self, search_type, value, user_wallet=None):
-        """Search the linked list for transactions by address or amount, filtered by sender for non-admin users."""
         results = []
         current = self.head
         try:
             if search_type == "amount":
-                value = float(value)  # Convert amount to float for comparison
+                value = float(value)  
             while current:
                 txn = current.transaction
                 txn_data = {
@@ -171,7 +170,7 @@ class TransactionLedger(BlockchainComponent):
                     "hash": current.get_hash(),
                     "previous_hash": current.get_previous_hash()
                 }
-                # Apply sender filter for non-admin users
+                
                 if user_wallet is None or txn.sender_address == user_wallet:
                     if search_type == "address" and txn.receiver_address == value:
                         results.append(txn_data)
@@ -192,13 +191,13 @@ class TransactionLedger(BlockchainComponent):
             return {"message": "Ledger is empty.", "valid": True}
         
         # ---HASH CHAIN VERIFICATION---
-        '''
+        
         for i in range(1, len(transactions)):
             recalculated_hash = self.calculate_hash(
                 transactions[i]["sender_address"],
                 transactions[i]["receiver_address"],
                 transactions[i]["amount"],
-                transactions[i]["timestamp"],  # Ensure timestamp is used as string
+                transactions[i]["timestamp"],  
                 transactions[i - 1]["hash"]
             )
 
@@ -212,9 +211,10 @@ class TransactionLedger(BlockchainComponent):
                 }
 
         return {"message": "Blockchain is valid.", "valid": True}
-        '''
+        
 
         #---MERKLE TREE VERIFICATION---
+        '''
         merkle_tree = MerkleTree(transactions)
         computed_root = merkle_tree.get_root()
         stored_root = db["merkle_roots"].find_one(sort=[("timestamp", -1)])["root"]  
@@ -224,6 +224,42 @@ class TransactionLedger(BlockchainComponent):
             return {"message": "Merkle Tree verification failed! Data tampered.", "valid": False}
 
         return {"message": "Merkle Tree is valid.", "valid": True}
+        '''
+
+        #-----using linked list------
+        '''
+        if not self.head:
+            return {"message": "Ledger is empty.", "valid": True}
+
+        current = self.head
+        previous = None
+
+        while current:
+            recalculated_hash = self.calculate_hash(
+                current.transaction.sender_address,
+                current.transaction.receiver_address,
+                current.transaction.amount,
+                current.transaction.timestamp,
+                current.get_previous_hash()
+            )
+
+            if current.get_hash() != recalculated_hash:
+                return {
+                    "message": f"Tampering detected! Expected: {recalculated_hash}, Found: {current.get_hash()}",
+                    "valid": False
+                }
+
+            if previous and current.get_previous_hash() != previous.get_hash():
+                return {
+                    "message": "Blockchain is broken! Hash mismatch between blocks.",
+                    "valid": False
+                }
+
+            previous = current
+            current = current.next
+
+        return {"message": "Blockchain is valid.","valid":True}
+        '''
 
     def display_ledger(self):
         transactions = collection.find()
@@ -232,15 +268,12 @@ class TransactionLedger(BlockchainComponent):
             return
         print("\n===== Transaction Ledger =====\n")
         for txn in transactions:
-            print(f"Transaction ID: {txn['hash'][:10]}")
             print(f"Sender Address: {txn['sender_address']}")
             print(f"Receiver Address: {txn['receiver_address']}")
             print(f"Amount: {txn['amount']}")
             
             timestamp_obj = datetime.fromisoformat(txn['timestamp'])
             print(f"Timestamp: {timestamp_obj.strftime('%Y-%m-%d %H:%M:%S')}")
-            
-            print(f"Previous Hash: {txn['previous_hash']}\n")
             print("-" * 40)
 
 obj = TransactionLedger()
